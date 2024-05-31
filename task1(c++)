@@ -1,0 +1,53 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+double f(double x1, double x2) {
+    return x1 + 5 * x2 + exp(pow(x1, 2) + pow(x2, 2));
+}
+
+double line_search(double (*f)(double, double), std::vector<double> x, int index, double step_size) {
+    double best_val = f(x[0], x[1]);
+    double best_x = x[index];
+
+    x[index] += step_size;
+    double val = f(x[0], x[1]);
+    if (val < best_val) {
+        best_val = val;
+        best_x = x[index];
+    }
+
+    x[index] -= 2 * step_size;
+    val = f(x[0], x[1]);
+    if (val < best_val) {
+        best_val = val;
+        best_x = x[index];
+    }
+
+    return best_x;
+}
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+    std::vector<double> x = { 0.0, 0.0 };  
+    double step_size = 0.1;
+    double tolerance = 1e-6;
+    int max_iters = 1000;
+    int iter = 0;
+
+    while (iter < max_iters) {
+        std::vector<double> prev_x = x;
+        x[0] = line_search(f, x, 0, step_size);
+        x[1] = line_search(f, x, 1, step_size);
+        if (fabs(f(x[0], x[1]) - f(prev_x[0], prev_x[1])) < tolerance) {
+            break;
+        }
+        iter++;
+    }
+
+    std::cout << "Точка оптимума: (" << x[0] << ", " << x[1] << ")" << std::endl;
+    std::cout << "Значение отпимума: " << f(x[0], x[1]) << std::endl;
+    
+
+    return 0;
+}
